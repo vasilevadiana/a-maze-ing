@@ -1,7 +1,19 @@
 from collections import deque
 from typing import List, Tuple, Optional, Dict
 
+
 def get_neighbors(maze: List[List[int]], cell: Tuple[int, int]):
+    neighbors: List[Tuple[int, int]] = []
+    row, col = cell
+    directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+    num_rows = len(maze)
+    num_cols = len(maze[0]) if num_rows > 0 else 0
+    for dr, dc in directions:
+        num_rows += dc
+        num_cols += dc
+    
+
+
     return
 
 def is_walkable(maze: List[List[int]], cell: Tuple[int, int], neighbor_cell: Tuple[int, int]):
