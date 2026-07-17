@@ -1,21 +1,14 @@
 #!/usr/bin/env python3
 
 import random
+from pydantic import BaseModel, Field
 
 
-class Cell:
-    def __init__(self, north=0, east=0, south=0, west=0):
-        self.north = int(north)
-        self.east = int(east)
-        self.south = int(south)
-        self.west = int(west)
-        self._validate()
-
-    def _validate(self):
-        for name in ("north", "west", "east", "south"):
-            val = getattr(self, name)
-            if val not in (0, 1):
-                raise ValueError(f"{name} must be 0 or 1")
+class Cell(BaseModel):
+    north: int = Field(ge=0, le=1, default=0)
+    east: int = Field(ge=0, le=1, default=0)
+    south: int = Field(ge=0, le=1, default=0)
+    west: int = Field(ge=0, le=1, default=0)
 
 
 class MazeGenerator():
@@ -24,7 +17,15 @@ class MazeGenerator():
 
     def generate(self, seed: int | None = None) -> list[list[Cell]]:
         maze: list[list[Cell]] = []
+        width = self.config["WIDTH"]
+        heigth = self.config["HEIGHT"]
+        entry = self.config["ENTRY"]
+        exit = self.config["EXIT"]
 
+        maze = [[Cell() for i in range(width)] for j in range(heigth)]
+        visited = [[0 for i in range(width)] for j in range(heigth)]
+
+        
         return maze
 
 
