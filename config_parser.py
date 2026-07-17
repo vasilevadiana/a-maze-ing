@@ -28,10 +28,14 @@ def config_parser(filepath: str) -> MazeConfig:
             config_dict[key.strip().upper()] = val.strip()
         key_list = ["WIDTH", "HEIGHT", "ENTRY",
                     "EXIT", "PERFECT", "OUTPUT_FILE"]
+        missing_keys = []
         for key in key_list:
             if key not in config_dict.keys():
-                raise ValueError(f"Invalid syntax for config file,"
-                                 f" missing key {key}")
+                missing_keys.append(key)
+        if missing_keys:
+            missing_keys_str = ",".join(missing_keys)
+            raise ValueError(f"Invalid syntax for config file:"
+                             f"missing keys [{missing_keys_str}]")
         try:
             width = int(config_dict["WIDTH"])
             height = int(config_dict["HEIGHT"])
@@ -53,8 +57,16 @@ def config_parser(filepath: str) -> MazeConfig:
                 perfect = False
             else:
                 raise ValueError("PERFECT must be True or False")
-            # TO DO - CHECKS FOR OUTPUT FILE
-            output_file = config_dict["OUTPUT_FILE"]
+            output_file = config_dict["OUTPUT_FILE"].strip()
+            if not output_file:
+                raise ValueError("Output file cannot be empty")
+            if os.path.isdir(output_file):
+                raise ValueError("Provided output file is a directory, "
+                                 "it must be a file")
+            parent_dir = os.path.dirname(output_file) or "."
+            if not os.path.exists(parent_dir):
+                raise ValueError(f"Destination directory '{parent_dir}'"
+                                 f"does not exist")
         except ValueError as e:
             raise ValueError(f"Invalid syntax for config file: {e}")
         if width < 0 or height < 0:
