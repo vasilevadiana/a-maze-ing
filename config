@@ -16,4 +16,4 @@ EXIT=19,14
 PERFECT=True
 
 # Destination path where your program will export the completed maze and its solution
-OUTPUT_FILE=maze.txt
+OUTPUT_FILE=output.txt
