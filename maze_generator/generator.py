@@ -1,32 +1,118 @@
 #!/usr/bin/env python3
 
 import random
-from pydantic import BaseModel, Field
 
 
-class Cell(BaseModel):
-    north: int = Field(ge=0, le=1, default=0)
-    east: int = Field(ge=0, le=1, default=0)
-    south: int = Field(ge=0, le=1, default=0)
-    west: int = Field(ge=0, le=1, default=0)
+class Cell():
+    def __init__(self):
+        self.visited = False
+        self.walls = {
+            "north": True,
+            "east": True,
+            "south": True,
+            "west": True
+        }
+        # add variable for encryption?
 
 
 class MazeGenerator():
     def __init__(self, config):
-        self.config = config
+        self.seed = config["SEED"]
+        self.width = config["WIDTH"]
+        self.height = config["HEIGHT"]
+        self.perfect = config["PERFECT"]
 
-    def generate(self, seed: int | None = None) -> list[list[Cell]]:
-        maze: list[list[Cell]] = []
-        width = self.config["WIDTH"]
-        heigth = self.config["HEIGHT"]
-        entry = self.config["ENTRY"]
-        exit = self.config["EXIT"]
+    def _get_unvisited_neighbors(self, x, y, maze):
+        unvisited_neighbors = []
 
-        maze = [[Cell() for i in range(width)] for j in range(heigth)]
-        visited = [[0 for i in range(width)] for j in range(heigth)]
+        if y - 1 >= 0:
+            if not maze[y - 1][x].visited:
+                unvisited_neighbors.append({"y": y-1, 
+                                            "x": x, 
+                                            "neighbors_direction": "south",
+                                            "current_cell_direction": "north"})
+        if y + 1 <= self.height - 1:
+            if not maze[y + 1][x].visited:
+                unvisited_neighbors.append({"y": y+1, 
+                                            "x": x,
+                                            "neighbors_direction": "north",
+                                            "current_cell_direction": "south"})
+        if x - 1 >= 0:
+            if not maze[y][x - 1].visited:
+                unvisited_neighbors.append({"y": y, 
+                                            "x": x-1, 
+                                            "neighbors_direction": "east",
+                                            "current_cell_direction": "west"})
+        if x + 1 <= self.width - 1:
+            if not maze[y][x + 1].visited:
+                unvisited_neighbors.append({"y": y,
+                                            "x": x+1,
+                                            "neighbors_direction": "west",
+                                            "current_cell_direction": "east"})
+        return unvisited_neighbors
 
+
+    def _remove_random_walls(self, maze):
         
         return maze
+
+
+    def generate(self) -> list[list[Cell]]:
+        random.seed(self.seed)
+
+        maze = [[Cell() for i in range(self.width + 1)] for j in range(self.height + 1)]
+        x = random.randint(0, self.width - 1)
+        y = random.randint(0, self.height - 1)
+        print("random dot:", x, y)
+        maze[y][x].visited = True
+
+        stack = [] #to save visited Cells
+
+        while True:
+            neighbors = self._get_unvisited_neighbors(x, y, maze)
+
+            if neighbors:
+                neighbor = random.choice(neighbors)
+                maze[neighbor["y"]][neighbor["x"]].visited = True
+                maze[neighbor["y"]][neighbor["x"]].walls[neighbor["neighbors_direction"]] = False
+                maze[y][x].walls[neighbor["current_cell_direction"]] = False
+                
+                stack.append((x, y))
+                x, y = neighbor["x"], neighbor["y"]
+            elif stack:
+                x, y = stack.pop()
+            else:
+                break
+
+        if not self.perfect:
+            maze = _remove_random_walls(maze)
+        return maze
+
+
+    def print_maze(self):
+        # Top border
+        print("+" + "---+" * self.width)
+
+        for y in range(self.height):
+
+            # Vertical walls
+            line = "|"
+            for x in range(self.width):
+                line += "   "
+                if maze[y][x].walls["east"]:
+                    line += "|"
+                else:
+                    line += " "
+            print(line)
+
+            # Horizontal walls
+            line = "+"
+            for x in range(self.width):
+                if maze[y][x].walls["south"]:
+                    line += "---+"
+                else:
+                    line += "   +"
+            print(line)
 
 
 if __name__ == "__main__":
@@ -43,5 +129,14 @@ if __name__ == "__main__":
             sys.path.insert(0, ROOT)
         from config_parser import config_parser
 
-    config = config_parser("/home/dvasilev/Documents/core/Milestone2/amazing/config")
+    config = config_parser("/Users/dianavasileva/Documents/42/Core/Milestone2/amazing/a-maze-ing/config")
     print(config)
+
+    gen = MazeGenerator(config)
+    maze = gen.generate()
+    for i in range(len(maze)):
+        for j in range(len(maze[0])):
+            print(maze[i][j].visited)
+            print(maze[i][j].walls)
+        print()
+    gen.print_maze()
