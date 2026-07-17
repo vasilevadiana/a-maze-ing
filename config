@@ -4,16 +4,19 @@
 # - Key/Value pairs use 'KEY=VALUE' (lowercase/uppercase are both OK).
 
 # The grid dimensions of the maze (must be positive integers)
-WIDTH=20
-HEIGHT=19
+WIDTH=10
+HEIGHT=11
 
 # Coordinate tuples representing where the user enters and leaves the maze.
 # Format: X,Y (0-indexed)
 ENTRY=0,0 
-EXIT=19,14
+EXIT=8,7
 
 # Perfect Maze setting (True = exactly 1 path with no loops; False = loops allowed)
 PERFECT=True
 
 # Destination path where your program will export the completed maze and its solution
 OUTPUT_FILE=maze.txt
+
+# Number using which we can create the same maze (optional)
+SEED=42

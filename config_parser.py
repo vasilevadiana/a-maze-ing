@@ -1,5 +1,6 @@
 from typing import TypedDict, Dict, Tuple
 import os
+from typing import Optional
 
 
 class MazeConfig(TypedDict):
@@ -9,6 +10,7 @@ class MazeConfig(TypedDict):
     EXIT: Tuple[int, int]
     PERFECT: bool
     OUTPUT_FILE: str
+    SEED: Optional[int]
 
 
 def config_parser(filepath: str) -> MazeConfig:
@@ -37,6 +39,14 @@ def config_parser(filepath: str) -> MazeConfig:
             height = int(config_dict["HEIGHT"])
         except ValueError:
             raise ValueError("Width and height have to be integers")
+
+        seed: Optional[int] = None
+        if "SEED" in config_dict:
+            try:
+                seed = int(config_dict["SEED"])
+            except ValueError:
+                raise ValueError("SEED has to be an integer")
+
         try:
             entry_str = config_dict["ENTRY"].split(',')
             if len(entry_str) != 2:
@@ -75,7 +85,8 @@ def config_parser(filepath: str) -> MazeConfig:
         "ENTRY": entry_coords,
         "EXIT": exit_coords,
         "PERFECT": perfect,
-        "OUTPUT_FILE": output_file
+        "OUTPUT_FILE": output_file,
+        "SEED": seed
         }
 
 
