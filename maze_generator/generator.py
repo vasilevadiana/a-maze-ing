@@ -25,25 +25,25 @@ class MazeGenerator():
     def _get_unvisited_neighbors(self, x, y, maze):
         unvisited_neighbors = []
 
-        if y - 1 >= 0:
+        if y > 0:
             if not maze[y - 1][x].visited:
                 unvisited_neighbors.append({"y": y-1, 
                                             "x": x, 
                                             "neighbors_direction": "south",
                                             "current_cell_direction": "north"})
-        if y + 1 <= self.height - 1:
+        if y < self.height - 1:
             if not maze[y + 1][x].visited:
                 unvisited_neighbors.append({"y": y+1, 
                                             "x": x,
                                             "neighbors_direction": "north",
                                             "current_cell_direction": "south"})
-        if x - 1 >= 0:
+        if x > 0:
             if not maze[y][x - 1].visited:
                 unvisited_neighbors.append({"y": y, 
                                             "x": x-1, 
                                             "neighbors_direction": "east",
                                             "current_cell_direction": "west"})
-        if x + 1 <= self.width - 1:
+        if x < self.width - 1:
             if not maze[y][x + 1].visited:
                 unvisited_neighbors.append({"y": y,
                                             "x": x+1,
@@ -52,8 +52,40 @@ class MazeGenerator():
         return unvisited_neighbors
 
 
-    def _remove_random_walls(self, maze):
-        
+    def _remove_random_walls(self, maze, walls_num):
+        removed = 0
+        while removed < walls_num:
+            x = random.randint(0, self.width - 1)
+            y = random.randint(0, self.height - 1)
+
+            neighbors = []
+
+            if y > 0:
+                neighbors.append({"y": y-1, 
+                                  "x": x, 
+                                  "neighbors_direction": "south",
+                                  "current_cell_direction": "north"})
+            if y < self.height - 1:
+                neighbors.append({"y": y+1, 
+                                  "x": x,
+                                  "neighbors_direction": "north",
+                                  "current_cell_direction": "south"})
+            if x > 0:
+                neighbors.append({"y": y, 
+                                  "x": x-1, 
+                                  "neighbors_direction": "east",
+                                  "current_cell_direction": "west"})
+            if x < self.width - 1:
+                neighbors.append({"y": y,
+                                  "x": x+1,
+                                  "neighbors_direction": "west",
+                                  "current_cell_direction": "east"})
+                
+            neighbor = random.choice(neighbors)
+            if maze[y][x].walls[neighbor["current_cell_direction"]]:
+                maze[y][x].walls[neighbor["current_cell_direction"]] = False
+                maze[neighbor["y"]][neighbor["x"]].walls[neighbor["neighbors_direction"]] = False
+                removed += 1
         return maze
 
 
@@ -63,7 +95,6 @@ class MazeGenerator():
         maze = [[Cell() for i in range(self.width + 1)] for j in range(self.height + 1)]
         x = random.randint(0, self.width - 1)
         y = random.randint(0, self.height - 1)
-        print("random dot:", x, y)
         maze[y][x].visited = True
 
         stack = [] #to save visited Cells
@@ -85,7 +116,8 @@ class MazeGenerator():
                 break
 
         if not self.perfect:
-            maze = _remove_random_walls(maze)
+            walls_num = (self.height * self.width) // 10
+            maze = self._remove_random_walls(maze, walls_num)
         return maze
 
 
@@ -134,9 +166,9 @@ if __name__ == "__main__":
 
     gen = MazeGenerator(config)
     maze = gen.generate()
-    for i in range(len(maze)):
-        for j in range(len(maze[0])):
-            print(maze[i][j].visited)
-            print(maze[i][j].walls)
-        print()
+    # for i in range(len(maze)):
+    #     for j in range(len(maze[0])):
+    #         print(maze[i][j].visited)
+    #         print(maze[i][j].walls)
+    #     print()
     gen.print_maze()
