@@ -93,7 +93,7 @@ def config_parser(filepath: str) -> MazeConfig:
 if __name__ == "__main__":
     import sys
     try:
-        print(config_parser("/home/zscekic/core/a_maze_ing/config"))
+        print(config_parser("/home/zscekic/core/a_maze_ing/config.txt"))
     except (FileNotFoundError, ValueError) as err:
         print(err, file=sys.stderr)
         sys.exit(1)
