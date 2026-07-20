@@ -82,13 +82,47 @@ class MazeGenerator():
         return unvisited_neighbors
 
 
-    def has_open_3x3(self): #TODO
+    def has_open_3x3(self, maze, x, y):
+        def is_open_3x3(maze, x, y):
+            # x,y - top left corner position of 3x3 area
+            # reject windows starting outside the maze
+            if x < 0 or y < 0:
+                return False
+            # check all 6 horizontal (south) walls
+            for yy in range(y, y + 2):
+                for xx in range(x, x + 3):
+                    try:
+                        if maze[yy][xx].walls["south"]:
+                            return False
+                    except IndexError:
+                        return False
+
+            # check all 6 vertical (east) walls
+            for yy in range(y, y + 3):
+                for xx in range(x, x + 2):
+                    try:
+                        if maze[yy][xx].walls["east"]:
+                            return False
+                    except IndexError:
+                        return False
+
+            return True
+        
+        # check all 9 3x3 areas around given cell
+        for yy in range(y - 2, y + 1):
+            for xx in range(x - 2, x + 1):
+                if is_open_3x3(maze, xx, yy):
+                    return True
+
         return False
 
 
     def _remove_random_walls(self, maze, walls_num):
         removed = 0
-        while removed < walls_num:
+        # to avoid cases when i cant remove given number of walls
+        # without creating 3x3 hall
+        count_3x3_open_areas = 0
+        while removed < walls_num and count_3x3_open_areas < 5:
             x = random.randint(0, self.width - 1)
             y = random.randint(0, self.height - 1)
             if maze[y][x].blocked:
@@ -123,9 +157,10 @@ class MazeGenerator():
             if maze[y][x].walls[neighbor["current_cell_direction"]]:
                 maze[y][x].walls[neighbor["current_cell_direction"]] = False
                 maze[neighbor["y"]][neighbor["x"]].walls[neighbor["neighbors_direction"]] = False
-                if self.has_open_3x3():
+                if self.has_open_3x3(maze, x, y) or self.has_open_3x3(maze, neighbor["x"], neighbor["y"]):
                     maze[y][x].walls[neighbor["current_cell_direction"]] = True
                     maze[neighbor["y"]][neighbor["x"]].walls[neighbor["neighbors_direction"]] = True
+                    count_3x3_open_areas += 1
                 else:
                     removed += 1
         return maze
@@ -136,7 +171,7 @@ class MazeGenerator():
 
         maze = [[Cell() for i in range(self.width)] for j in range(self.height)]
         maze = self._set_42_pattern(maze)
-        # x = random.randint(0, self.width - 1)
+        # x = random.randint(0, self.width - 1) TODO
         # y = random.randint(0, self.height - 1)
         x = 0
         y = 0
@@ -206,7 +241,7 @@ if __name__ == "__main__":
             sys.path.insert(0, ROOT)
         from config_parser import config_parser
 
-    config = config_parser("/Users/dianavasileva/Documents/42/Core/Milestone2/amazing/a-maze-ing/config.txt")
+    config = config_parser("/home/dvasilev/Documents/core/Milestone2/amazing/config.txt")
     print(config)
 
     gen = MazeGenerator(config)
