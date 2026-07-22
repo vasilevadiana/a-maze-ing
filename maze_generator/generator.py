@@ -221,7 +221,7 @@ class MazeGenerator():
         return maze
 
 
-    def print_maze(self):
+    def print_maze(self, maze):
         # Top border
         print("+" + "---+" * self.width)
 
@@ -267,7 +267,7 @@ if __name__ == "__main__":
     gen = MazeGenerator(config)
     try:
         maze = gen.generate()
-        gen.print_maze()
+        gen.print_maze(maze)
     except Exception as e:
         print(e)
 
