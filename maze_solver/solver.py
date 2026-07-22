@@ -2,22 +2,31 @@ from collections import deque
 from typing import List, Tuple, Optional, Dict
 
 
-def get_neighbors(maze: List[List[int]], cell: Tuple[int, int]):
+def get_neighbors(maze: List[List[int]],
+                  cell: Tuple[int, int]
+                  ) -> List[Tuple[int, int]]:
     neighbors: List[Tuple[int, int]] = []
     row, col = cell
     directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
-    num_rows = len(maze)
-    num_cols = len(maze[0]) if num_rows > 0 else 0
+    total_rows = len(maze)
+    total_cols = len(maze[0]) if total_rows > 0 else 0
     for dr, dc in directions:
-        num_rows += dc
-        num_cols += dc
-    
+        next_rows = row + dr
+        next_cols = col + dc
+        if 0 <= next_rows < total_rows and 0 <= next_cols < total_cols:
+            neighbors.append((next_rows, next_cols))
+    return neighbors
 
+# todo!
 
-    return
-
-def is_walkable(maze: List[List[int]], cell: Tuple[int, int], neighbor_cell: Tuple[int, int]):
-    return
+# def is_walkable(maze: List[List[int]],
+#                 cell: Tuple[int, int],
+#                 neighbor_cell: Tuple[int, int]) -> bool:
+#     dr = cell[0] - neighbor_cell[0]
+#     dc = cell[1] - neighbor_cell[1]
+#     if dr == -1
+#         direction =
+#     return
 
 
 def solve_maze(
