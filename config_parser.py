@@ -81,13 +81,13 @@ def config_parser(filepath: str) -> MazeConfig:
             raise ValueError(f"Invalid syntax for config file: {e}")
         if width < 0 or height < 0:
             raise ValueError("Width and height values have to be positive")
-        if entry_coords[0] <= 0 and entry_coords[0] > width:
+        if entry_coords[0] < 0 or entry_coords[0] >= width:
             raise ValueError("Entry coordinate out of boundaries")
-        if entry_coords[1] <= 0 and entry_coords[1] > height:
+        if entry_coords[1] < 0 or entry_coords[1] >= height:
             raise ValueError("Entry coordinate out of boundaries")
-        if exit_coords[0] <= 0 or exit_coords[0] > width:
+        if exit_coords[0] < 0 or exit_coords[0] >= width:
             raise ValueError("Entry coordinate out of boundaries")
-        if exit_coords[1] <= 0 or exit_coords[1] > width:
+        if exit_coords[1] < 0 or exit_coords[1] >= height:
             raise ValueError("Entry coordinate out of boundaries")
         if entry_coords == exit_coords:
             raise ValueError("Entry and Exit coordinates cannot be the same")
