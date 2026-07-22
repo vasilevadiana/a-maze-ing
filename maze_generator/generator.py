@@ -13,7 +13,6 @@ class Cell():
             "south": True,
             "west": True
         }
-        # add variable for encryption?
 
 
 class MazeGenerator():
@@ -28,7 +27,6 @@ class MazeGenerator():
     def _set_42_pattern(self, maze):
         pattern_width = 7
         pattern_height = 5
-        # TODO: validate - if not possible to fit 42 return error (enter exit also)
         if self.height <= pattern_width and self.width <= pattern_height:
             print('Error: Maze too small to embed the "42" pattern.')
         else:
@@ -185,7 +183,25 @@ class MazeGenerator():
         return maze
 
 
-    def generate(self) -> list[list[Cell]]:
+    def _cells_to_integers(self, maze):
+        maze_integer = [[] * self.width] * self.height
+        for y in range(self.height):
+            maze_integer[y] = []
+            for x in range(self.width):
+                value = 0
+                if maze[y][x].walls["north"]:
+                    value = value | 1
+                if maze[y][x].walls["east"]:
+                    value = value | 2
+                if maze[y][x].walls["south"]:
+                    value = value | 4
+                if maze[y][x].walls["west"]:
+                    value = value | 8
+                maze_integer[y].append(value)
+        return maze_integer
+
+        
+    def generate(self) -> list[list[int]]:
         random.seed(self.seed)
 
         maze = [[Cell() for i in range(self.width)] for j in range(self.height)]
@@ -218,7 +234,9 @@ class MazeGenerator():
         if not self.perfect:
             walls_num = (self.height * self.width) // 10
             maze = self._remove_random_walls(maze, walls_num)
-        return maze
+        self.print_maze(maze)
+        maze_integer = self._cells_to_integers(maze)
+        return maze_integer
 
 
     def print_maze(self, maze):
@@ -226,8 +244,7 @@ class MazeGenerator():
         print("+" + "---+" * self.width)
 
         for y in range(self.height):
-
-            # Vertical walls
+            # vertical walls
             line = "|"
             for x in range(self.width):
                 line += "   "
@@ -237,7 +254,7 @@ class MazeGenerator():
                     line += " "
             print(line)
 
-            # Horizontal walls
+            # horizontal walls
             line = "+"
             for x in range(self.width):
                 if maze[y][x].walls["south"]:
@@ -245,6 +262,26 @@ class MazeGenerator():
                 else:
                     line += "   +"
             print(line)
+
+    def save_maze(self, maze, filename):
+        with open(filename, "w", encoding="utf-8") as file:
+            for y in range(self.height):
+                line = ''
+                for x in range(self.width):
+                    value = 0
+                    if maze[y][x].walls["north"]:
+                        value = value | 1
+                    if maze[y][x].walls["east"]:
+                        value = value | 2
+                    if maze[y][x].walls["south"]:
+                        value = value | 4
+                    if maze[y][x].walls["west"]:
+                        value = value | 8
+                    line += format(value, "X")
+                file.write(line)
+                if y != self.height - 1:
+                    file.write('\n')
+
 
 
 if __name__ == "__main__":
@@ -266,8 +303,8 @@ if __name__ == "__main__":
 
     gen = MazeGenerator(config)
     try:
+        gen = MazeGenerator(config)
         maze = gen.generate()
-        gen.print_maze(maze)
+        print(maze)
     except Exception as e:
         print(e)
-
