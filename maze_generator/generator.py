@@ -6,7 +6,7 @@ import random
 class Cell():
     def __init__(self):
         self.visited = False
-        self.blocked = False  # Part of 42 pattern
+        self.blocked = False  # for 42 pattern
         self.walls = {
             "north": True,
             "east": True,
@@ -22,35 +22,54 @@ class MazeGenerator():
         self.width = config["WIDTH"]
         self.height = config["HEIGHT"]
         self.perfect = config["PERFECT"]
+        self.entry = config["ENTRY"]
+        self.exit = config["EXIT"]
 
     def _set_42_pattern(self, maze):
         pattern_width = 7
         pattern_height = 5
-        y = self.height // 2 - pattern_height // 2
-        x = self.width // 2 - pattern_width // 2
-        print(x, y)
         # TODO: validate - if not possible to fit 42 return error (enter exit also)
-        # pattern "4"
-        maze[y][x].blocked = True
-        maze[y+1][x].blocked = True
-        maze[y+2][x].blocked = True
-        maze[y+2][x+1].blocked = True
-        maze[y+2][x+2].blocked = True
-        maze[y+3][x+2].blocked = True
-        maze[y+4][x+2].blocked = True
-        # pattern "2"
-        maze[y][x+4].blocked = True
-        maze[y][x+5].blocked = True
-        maze[y][x+6].blocked = True
-        maze[y+1][x+6].blocked = True
-        maze[y+2][x+6].blocked = True
-        maze[y+2][x+5].blocked = True
-        maze[y+2][x+4].blocked = True
-        maze[y+3][x+4].blocked = True
-        maze[y+4][x+4].blocked = True
-        maze[y+4][x+5].blocked = True
-        maze[y+4][x+6].blocked = True
+        if self.height <= pattern_width and self.width <= pattern_height:
+            print('Error: Maze too small to embed the "42" pattern.')
+        else:
+            if self.height == 6 and self.width == 8:
+                y = 0
+                x = 0
+            else:
+                # pattern`s top left position
+                y = self.height // 2 - pattern_height // 2
+                x = self.width // 2 - pattern_width // 2
+                print(x, y)
+            # pattern "4"
+            maze[y][x].blocked = True
+            maze[y+1][x].blocked = True
+            maze[y+2][x].blocked = True
+            maze[y+2][x+1].blocked = True
+            maze[y+2][x+2].blocked = True
+            maze[y+3][x+2].blocked = True
+            maze[y+4][x+2].blocked = True
+            # pattern "2"
+            maze[y][x+4].blocked = True
+            maze[y][x+5].blocked = True
+            maze[y][x+6].blocked = True
+            maze[y+1][x+6].blocked = True
+            maze[y+2][x+6].blocked = True
+            maze[y+2][x+5].blocked = True
+            maze[y+2][x+4].blocked = True
+            maze[y+3][x+4].blocked = True
+            maze[y+4][x+4].blocked = True
+            maze[y+4][x+5].blocked = True
+            maze[y+4][x+6].blocked = True
         return maze
+
+    def _get_starting_point(self, maze):
+        non_blocked_sells = []
+        for y in range(0, self.height):
+            for x in range(0, self.width):
+                if not maze[y][x].blocked:
+                    non_blocked_sells.append([x, y])
+        return non_blocked_sells
+
 
     def _get_unvisited_neighbors(self, x, y, maze):
         unvisited_neighbors = []
@@ -171,10 +190,11 @@ class MazeGenerator():
 
         maze = [[Cell() for i in range(self.width)] for j in range(self.height)]
         maze = self._set_42_pattern(maze)
-        # x = random.randint(0, self.width - 1) TODO
-        # y = random.randint(0, self.height - 1)
-        x = 0
-        y = 0
+        if maze[self.entry[1]][self.entry[0]].blocked or \
+        maze[self.exit[1]][self.exit[0]].blocked:
+            raise ValueError("Entry and exit points must be out of 42 pattern")
+        not_bloked_cells = self._get_starting_point(maze)
+        x, y = random.choice(not_bloked_cells)
         maze[y][x].visited = True
 
         stack = [] #to save visited Cells
@@ -245,10 +265,9 @@ if __name__ == "__main__":
     print(config)
 
     gen = MazeGenerator(config)
-    maze = gen.generate()
-    # for i in range(len(maze)):
-    #     for j in range(len(maze[0])):
-    #         print(maze[i][j].visited)
-    #         print(maze[i][j].walls)
-    #     print()
-    gen.print_maze()
+    try:
+        maze = gen.generate()
+        gen.print_maze()
+    except Exception as e:
+        print(e)
+
