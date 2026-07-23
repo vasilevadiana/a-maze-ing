@@ -26,7 +26,8 @@ if __name__ == "__main__":
     gen = MazeGenerator(config)
     maze = gen.generate()
     print(maze)
-    start = (0, 0)
-    exit_cell = (15, 15)
+
+    start = config["ENTRY"]
+    exit_cell = config["EXIT"]
     path = solve_maze(maze, start, exit_cell)
     print("\n", path)
