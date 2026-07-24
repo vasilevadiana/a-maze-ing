@@ -68,26 +68,25 @@ class MazeGenerator():
                     non_blocked_sells.append([x, y])
         return non_blocked_sells
 
-
     def _get_unvisited_neighbors(self, x, y, maze):
         unvisited_neighbors = []
 
         if y > 0:
             if not maze[y - 1][x].visited and not maze[y - 1][x].blocked:
-                unvisited_neighbors.append({"y": y-1, 
-                                            "x": x, 
+                unvisited_neighbors.append({"y": y-1,
+                                            "x": x,
                                             "neighbors_direction": "south",
                                             "current_cell_direction": "north"})
         if y < self.height - 1:
             if not maze[y + 1][x].visited and not maze[y + 1][x].blocked:
-                unvisited_neighbors.append({"y": y+1, 
+                unvisited_neighbors.append({"y": y+1,
                                             "x": x,
                                             "neighbors_direction": "north",
                                             "current_cell_direction": "south"})
         if x > 0:
             if not maze[y][x - 1].visited and not maze[y][x - 1].blocked:
-                unvisited_neighbors.append({"y": y, 
-                                            "x": x-1, 
+                unvisited_neighbors.append({"y": y,
+                                            "x": x-1,
                                             "neighbors_direction": "east",
                                             "current_cell_direction": "west"})
         if x < self.width - 1:
@@ -97,7 +96,6 @@ class MazeGenerator():
                                             "neighbors_direction": "west",
                                             "current_cell_direction": "east"})
         return unvisited_neighbors
-
 
     def has_open_3x3(self, maze, x, y):
         def is_open_3x3(maze, x, y):
@@ -124,7 +122,7 @@ class MazeGenerator():
                         return False
 
             return True
-        
+
         # check all 9 3x3 areas around given cell
         for yy in range(y - 2, y + 1):
             for xx in range(x - 2, x + 1):
@@ -132,7 +130,6 @@ class MazeGenerator():
                     return True
 
         return False
-
 
     def _remove_random_walls(self, maze, walls_num):
         removed = 0
@@ -148,18 +145,18 @@ class MazeGenerator():
             neighbors = []
 
             if y > 0:
-                neighbors.append({"y": y-1, 
-                                  "x": x, 
+                neighbors.append({"y": y-1,
+                                  "x": x,
                                   "neighbors_direction": "south",
                                   "current_cell_direction": "north"})
             if y < self.height - 1:
-                neighbors.append({"y": y+1, 
+                neighbors.append({"y": y+1,
                                   "x": x,
                                   "neighbors_direction": "north",
                                   "current_cell_direction": "south"})
             if x > 0:
-                neighbors.append({"y": y, 
-                                  "x": x-1, 
+                neighbors.append({"y": y,
+                                  "x": x-1,
                                   "neighbors_direction": "east",
                                   "current_cell_direction": "west"})
             if x < self.width - 1:
@@ -167,21 +164,23 @@ class MazeGenerator():
                                   "x": x+1,
                                   "neighbors_direction": "west",
                                   "current_cell_direction": "east"})
-                
+
             neighbor = random.choice(neighbors)
             if maze[neighbor["y"]][neighbor["x"]].blocked:
                 continue
             if maze[y][x].walls[neighbor["current_cell_direction"]]:
                 maze[y][x].walls[neighbor["current_cell_direction"]] = False
-                maze[neighbor["y"]][neighbor["x"]].walls[neighbor["neighbors_direction"]] = False
-                if self.has_open_3x3(maze, x, y) or self.has_open_3x3(maze, neighbor["x"], neighbor["y"]):
+                (maze[neighbor["y"]][neighbor["x"]]
+                 .walls[neighbor["neighbors_direction"]]) = False
+                if self.has_open_3x3(maze, x, y) or \
+                   self.has_open_3x3(maze, neighbor["x"], neighbor["y"]):
                     maze[y][x].walls[neighbor["current_cell_direction"]] = True
-                    maze[neighbor["y"]][neighbor["x"]].walls[neighbor["neighbors_direction"]] = True
+                    (maze[neighbor["y"]][neighbor["x"]]
+                     .walls[neighbor["neighbors_direction"]]) = True
                     count_3x3_open_areas += 1
                 else:
                     removed += 1
         return maze
-
 
     def _cells_to_integers(self, maze):
         maze_integer = [[] * self.width] * self.height
@@ -200,20 +199,20 @@ class MazeGenerator():
                 maze_integer[y].append(value)
         return maze_integer
 
-        
     def generate(self) -> list[list[int]]:
         random.seed(self.seed)
 
-        maze = [[Cell() for i in range(self.width)] for j in range(self.height)]
+        maze = [[Cell() for i in range(self.width)]
+                for j in range(self.height)]
         maze = self._set_42_pattern(maze)
         if maze[self.entry[1]][self.entry[0]].blocked or \
-        maze[self.exit[1]][self.exit[0]].blocked:
+           maze[self.exit[1]][self.exit[0]].blocked:
             raise ValueError("Entry and exit points must be out of 42 pattern")
         not_bloked_cells = self._get_starting_point(maze)
         x, y = random.choice(not_bloked_cells)
         maze[y][x].visited = True
 
-        stack = [] #to save visited Cells
+        stack = []  # to save visited Cells
 
         while True:
             neighbors = self._get_unvisited_neighbors(x, y, maze)
@@ -221,9 +220,10 @@ class MazeGenerator():
             if neighbors:
                 neighbor = random.choice(neighbors)
                 maze[neighbor["y"]][neighbor["x"]].visited = True
-                maze[neighbor["y"]][neighbor["x"]].walls[neighbor["neighbors_direction"]] = False
+                (maze[neighbor["y"]][neighbor["x"]]
+                 .walls[neighbor["neighbors_direction"]]) = False
                 maze[y][x].walls[neighbor["current_cell_direction"]] = False
-                
+
                 stack.append((x, y))
                 x, y = neighbor["x"], neighbor["y"]
             elif stack:
@@ -234,12 +234,11 @@ class MazeGenerator():
         if not self.perfect:
             walls_num = (self.height * self.width) // 10
             maze = self._remove_random_walls(maze, walls_num)
-        self.print_maze(maze)
+            # self.print_maze(maze)
         maze_integer = self._cells_to_integers(maze)
         return maze_integer
 
-
-    def print_maze(self, maze):
+    def print_maze(self, maze, path):
         # Top border
         print("+" + "---+" * self.width)
 
@@ -247,7 +246,15 @@ class MazeGenerator():
             # vertical walls
             line = "|"
             for x in range(self.width):
-                line += "   "
+                # entry coordinates
+                if ((x, y) == self.entry):
+                    line += '\x1b[32m###\x1b[0m'
+                elif ((x, y) == self.exit):
+                    line += '\x1b[34m###\x1b[0m'
+                elif ((x, y) in path):
+                    line += '\x1b[33m***\x1b[0m'
+                else:
+                    line += "   "
                 if maze[y][x].walls["east"]:
                     line += "|"
                 else:
@@ -283,13 +290,13 @@ class MazeGenerator():
                     file.write('\n')
 
 
-
 if __name__ == "__main__":
     try:
         # If executed as a package (python -m), relative import works
         from ..config_parser import config_parser
     except (ImportError, ValueError):
-        # If executed as a script, add parent folder to sys.path and import absolutely
+        # If executed as a script,
+        # add parent folder to sys.path and import absolutely
         import os
         import sys
 
@@ -298,13 +305,16 @@ if __name__ == "__main__":
             sys.path.insert(0, ROOT)
         from config_parser import config_parser
 
-    config = config_parser("/home/dvasilev/Documents/core/Milestone2/amazing/config.txt")
+    config = config_parser("/home/dvasilev/Documents/"
+                           "core/Milestone2/amazing/config.txt")
     print(config)
 
     gen = MazeGenerator(config)
     try:
         gen = MazeGenerator(config)
         maze = gen.generate()
+
         print(maze)
+
     except Exception as e:
         print(e)

@@ -6,23 +6,23 @@ def get_neighbors(maze: List[List[int]],
                   cell: Tuple[int, int]
                   ) -> List[Tuple[int, int]]:
     neighbors: List[Tuple[int, int]] = []
-    row, col = cell
+    x, y = cell
     directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
     total_rows = len(maze)
     total_cols = len(maze[0]) if total_rows > 0 else 0
-    for dr, dc in directions:
-        next_rows = row + dr
-        next_cols = col + dc
-        if 0 <= next_rows < total_rows and 0 <= next_cols < total_cols:
-            neighbors.append((next_rows, next_cols))
+    for dx, dy in directions:
+        nx = x + dx
+        ny = y + dy
+        if 0 <= nx < total_cols and 0 <= ny < total_rows:
+            neighbors.append((nx, ny))
     return neighbors
 
 
 direction_masks = {
-    (-1, 0): 1,
-    (0, 1): 2,
-    (1, 0): 4,
-    (0, -1): 8
+    (0, -1): 1,
+    (1, 0): 2,
+    (0, 1): 4,
+    (-1, 0): 8
 }
 
 opposite_masks = {
@@ -36,16 +36,16 @@ opposite_masks = {
 def is_walkable(maze: List[List[int]],
                 cell: Tuple[int, int],
                 neighbor_cell: Tuple[int, int]) -> bool:
-    curr_row, curr_column = cell
-    nghbr_row, nghbr_column = neighbor_cell
-    change = (nghbr_row - curr_row, nghbr_column - curr_column)
+    curr_x, curr_y = cell
+    nghbr_x, nghbr_y = neighbor_cell
+    change = (nghbr_x - curr_x, nghbr_y - curr_y)
     if change not in direction_masks:
         return False
     out_wall = direction_masks[change]
     in_wall = opposite_masks[out_wall]
-    if (maze[curr_row][curr_column] & out_wall) != 0:
+    if (maze[curr_y][curr_x] & out_wall) != 0:
         return False
-    if (maze[nghbr_row][nghbr_column] & in_wall) != 0:
+    if (maze[nghbr_y][nghbr_x] & in_wall) != 0:
         return False
     return True
 
@@ -107,7 +107,8 @@ def solve_maze(
 #             [0, 0, 0]
 #         ]
 
-#         # 3x3 Maze with a wall blocking middle cell (1, 1) from the top (1, 0 has South wall = 4)
+#         # 3x3 Maze with a wall blocking middle cell (1, 1)
+#           from the top (1, 0 has South wall = 4)
 #         # and cell (0, 1) has South wall flag (4).
 #         self.walled_grid = [
 #             [0, 4, 0],   # (0, 1) has South wall (4)
@@ -148,7 +149,8 @@ def solve_maze(
 #         self.assertTrue(is_walkable(self.open_grid, (0, 0), (0, 1)))
 
 #     def test_is_walkable_with_wall(self):
-#         """Moving from (0, 1) to (1, 1) across a South wall (4) should return False."""
+#         """Moving from (0, 1) to (1, 1) across a South wall (4)
+#            should return False."""
 #         self.assertFalse(is_walkable(self.walled_grid, (0, 1), (1, 1)))
 
 #     def test_is_walkable_invalid_direction(self):
@@ -171,14 +173,16 @@ def solve_maze(
 #         """Should navigate around a wall to reach the target."""
 #         start = (0, 1)
 #         exit_cell = (1, 1)
-#         # Blocked directly from (0,1) -> (1,1), must go around via (0,0) or (0,2)
+#         # Blocked directly from (0,1) ->
+#           (1,1), must go around via (0,0) or (0,2)
 #         path = solve_maze(self.walled_grid, start, exit_cell)
 #         self.assertIsNotNone(path)
 #         self.assertEqual(path[0], start)
 #         self.assertEqual(path[-1], exit_cell)
 
 #     def test_solve_maze_same_start_and_exit(self):
-#         """When start and exit are the same cell, return a path with 1 element."""
+#         """When start and exit are the same cell,
+#         return a path with 1 element."""
 #         path = solve_maze(self.open_grid, (1, 1), (1, 1))
 #         self.assertEqual(path, [(1, 1)])
 

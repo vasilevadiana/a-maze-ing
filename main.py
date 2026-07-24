@@ -3,13 +3,13 @@
 from config_parser import config_parser
 from maze_generator.generator import MazeGenerator
 from maze_solver.solver import solve_maze
+from visualization.visualizer import print_maze
 
 if __name__ == "__main__":
 
     # try:
     #     config = config_parser("config.txt")
     #     print(config)
-    
     #     gen = MazeGenerator(config)
     #     maze = gen.generate()
     #     print(maze)
@@ -31,3 +31,4 @@ if __name__ == "__main__":
     exit_cell = config["EXIT"]
     path = solve_maze(maze, start, exit_cell)
     print("\n", path)
+    print_maze(maze, path, config)
