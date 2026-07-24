@@ -15,6 +15,8 @@ def print_maze(maze, path, config):
                 line += '\x1b[35m█E█\x1b[0m'
             elif ((x, y) in path):
                 line += '\x1b[36m███\x1b[0m'
+            elif maze[y][x] == 15:  # 42 pattern
+                line += '\x1b[93m███\x1b[0m'
             else:
                 line += "   "
             if maze[y][x] in [2, 3, 6, 7, 10, 11, 14, 15]:  # east wall closed
