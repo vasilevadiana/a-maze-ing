@@ -199,8 +199,11 @@ class MazeGenerator():
                 maze_integer[y].append(value)
         return maze_integer
 
-    def generate(self) -> list[list[int]]:
-        random.seed(self.seed)
+    def generate(self, seed=None) -> list[list[int]]:
+        if seed is not None:
+            random.seed(seed)
+        else:
+            random.seed(self.seed)
 
         maze = [[Cell() for i in range(self.width)]
                 for j in range(self.height)]
